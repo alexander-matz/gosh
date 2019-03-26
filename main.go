@@ -20,8 +20,9 @@ var usage = func() {
 
 func main() {
     flag.Usage = usage
-    var dir = flag.String("dir", ".", "serve files from directory")
+    var dir = flag.String("dir", ".", "serve files from this directory")
     var addr = flag.String("addr", "127.0.0.1:3000", "binding address")
+    var prefix = flag.String("prefix", "", "(optional) url prefix")
     var help = flag.Bool("help", false, "show this help")
     flag.Parse()
     if (*help) {
@@ -30,8 +31,8 @@ func main() {
     }
 
     fs := http.FileServer(http.Dir(*dir))
-    http.Handle("/", fs)
+    http.Handle("/", http.StripPrefix(*prefix, fs))
 
-    log.Println("Listening...")
+    log.Printf("Listening on %s...", *addr)
     http.ListenAndServe(*addr, nil)
 }
